@@ -25,3 +25,18 @@ uint64_t create(const char *path, bool is_dir)
 {
     return bmsyscall6(BM_SYSCALL_CREATE, (uint64_t)path, (uint64_t)is_dir, 0, 0, 0, 0);
 }
+
+int bm_waitpid(uint64_t pid)
+{
+    return (int)bmsyscall6(BM_SYSCALL_WAIT, pid, 0, 0, 0, 0, 0);
+}
+
+uint64_t bm_execve(const char *path, const char **argv, const char **envp)
+{
+    return bmsyscall6(BM_SYSCALL_EXECVE, (uint64_t)path, (uint64_t)argv, (uint64_t)envp, 0, 0, 0);
+}
+
+uint64_t bm_execv(const char *path, const char **argv)
+{
+    return bm_execve(path, argv, (const char **)0);
+}

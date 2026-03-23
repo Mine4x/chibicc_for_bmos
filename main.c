@@ -1,4 +1,5 @@
 #include "chibicc.h"
+#include "bmos.h"
 
 typedef enum {
   FILE_NONE, FILE_C, FILE_ASM, FILE_OBJ, FILE_AR, FILE_DSO,
@@ -387,7 +388,6 @@ static char *create_tmpfile(void) {
 }
 
 static void run_subprocess(char **argv) {
-  // If -### is given, dump the subprocess's command line.
   if (opt_hash_hash_hash) {
     fprintf(stderr, "%s", argv[0]);
     for (int i = 1; argv[i]; i++)
@@ -395,18 +395,13 @@ static void run_subprocess(char **argv) {
     fprintf(stderr, "\n");
   }
 
-  if (fork() == 0) {
-    // Child process. Run a new command.
-    execvp(argv[0], argv);
-    fprintf(stderr, "exec failed: %s: %s\n", argv[0], strerror(errno));
-    _exit(1);
+  uint64_t pid = bm_execv(argv[0], (const char **)argv);
+  if (pid == (uint64_t)-1) {
+    fprintf(stderr, "exec failed: %s\n", argv[0]);
+    exit(1);
   }
 
-  // Wait for the child process to finish.
-  int status;
-  while (wait(&status) > 0);
-  if (status != 0)
-    exit(1);
+  bm_waitpid(pid);
 }
 
 static void run_cc1(int argc, char **argv, char *input, char *output) {
