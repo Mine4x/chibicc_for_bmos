@@ -57,7 +57,7 @@ static void add_default_include_paths(char *argv0) {
   strarray_push(&include_paths, format("%s/include", dirname(strdup(argv0))));
 
   // Add standard include paths.
-  strarray_push(&include_paths, "/usr/include/libc/include");
+  strarray_push(&include_paths, "/usr/include/libc");
 
   // Keep a copy of the standard include paths for -MMD option.
   for (int i = 0; i < include_paths.len; i++)
@@ -561,7 +561,7 @@ static void cc1(void) {
 }
 
 static void assemble(char *input, char *output) {
-  char *cmd[] = {"as", "-c", input, "-o", output, NULL};
+  char *cmd[] = {"/bin/as", "-c", input, "-o", output, NULL};
   run_subprocess(cmd);
 }
 
